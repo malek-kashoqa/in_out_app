@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -35,12 +36,7 @@ class HomeScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: TextFormField(
                             onTap: () {
-                              showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now())
-                                  .then((value) {
-                                cubit.setInTime(time: value?.format(context));
-                              });
+                              timePickerClick(context, cubit);
                             },
                             keyboardType: TextInputType.none,
                             controller: cubit.inTime,
@@ -82,12 +78,7 @@ class HomeScreen extends StatelessWidget {
                           child: TextFormField(
                             keyboardType: TextInputType.none,
                             onTap: () {
-                              showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now())
-                                  .then((value) {
-                                cubit.setOutTime(time: value?.format(context));
-                              });
+                              timePickerClick(context, cubit);
                             },
                             controller: cubit.outTime,
                             textAlign: TextAlign.center,
@@ -151,8 +142,14 @@ class HomeScreen extends StatelessWidget {
                         width: double.infinity,
                         child: MaterialButton(
                           onPressed: () {
-                            print(cubit.inTime.text);
-                            print(cubit.outTime.text);
+                            var min = cubit.outDateTime
+                                .difference(cubit.inDateTime)
+                                .inMinutes;
+                            print(cubit.formatTimeDiff(min));
+                            var test = DateTime(2022, 02, 18, 00, 05)
+                                .difference(DateTime(2022, 02, 15, 15, 15))
+                                .inMinutes;
+                            print(cubit.formatTimeDiff(test));
                           },
                           child: Text(
                             'Confirm',
@@ -174,5 +171,11 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  void timePickerClick(BuildContext context, AppCubit cubit) {
+    showTimePicker(context: context, initialTime: TimeOfDay.now()).then((time) {
+      cubit.setInTime(datetime: cubit.getDateTime(time));
+    });
   }
 }

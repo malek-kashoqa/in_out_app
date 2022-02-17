@@ -11,23 +11,47 @@ class AppCubit extends Cubit<AppStates> {
   TextEditingController inTime = new TextEditingController();
   TextEditingController outTime = new TextEditingController();
 
+  late DateTime inDateTime;
+  late DateTime outDateTime;
+
   void setInTime({
-    time,
+    DateTime? datetime,
   }) {
-    if (time != null)
-      inTime.text = time;
-    else
-      inTime.text = DateFormat('hh:mm a').format(DateTime.now());
+    if (datetime != null) {
+      inDateTime = datetime;
+      inTime.text = formatTime(datetime);
+    } else {
+      inDateTime = DateTime.now();
+      inTime.text = DateFormat('hh:mm a').format(inDateTime);
+    }
     emit(AppGetInTimeState());
   }
 
   void setOutTime({
-    time,
+    DateTime? datetime,
   }) {
-    if (time != null)
-      outTime.text = time;
-    else
+    if (datetime != null) {
+      outDateTime = datetime;
+      outTime.text = formatTime(datetime);
+    } else {
+      outDateTime = DateTime.now();
       outTime.text = DateFormat('hh:mm a').format(DateTime.now());
+    }
     emit(AppGetOutTimeState());
+  }
+
+  String formatTime(time) {
+    var now = DateTime.now();
+    return DateFormat('hh:mm a')
+        .format(DateTime(now.year, now.month, now.day, time.hour, time.minute));
+  }
+
+  DateTime getDateTime(time) {
+    var now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  }
+
+  String formatTimeDiff(int minutes) {
+    return '${(Duration(minutes: minutes))}'.split('.')[0].padLeft(8, '0');
   }
 }
