@@ -179,16 +179,20 @@ class HomeScreen extends StatelessWidget {
                               width: double.infinity,
                               child: MaterialButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ConfirmScreen(
-                                                DateFormat('yyyy/MM/dd hh:mm a')
-                                                    .format(cubit.inConfirm),
-                                                DateFormat('yyyy/MM/dd hh:mm a')
-                                                    .format(cubit.outConfirm),
-                                                cubit.shiftTimeText,
-                                              )));
+                                  if (cubit.inConfirm != null &&
+                                      cubit.outConfirm != null)
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ConfirmScreen(
+                                                  DateFormat(
+                                                          'yyyy/MM/dd hh:mm a')
+                                                      .format(cubit.inConfirm),
+                                                  DateFormat(
+                                                          'yyyy/MM/dd hh:mm a')
+                                                      .format(cubit.outConfirm),
+                                                  cubit.shiftTimeText,
+                                                )));
                                 },
                                 child: Text(
                                   'Confirm',
