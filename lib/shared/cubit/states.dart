@@ -5,3 +5,5 @@ class AppInitialState extends AppStates {}
 class AppGetInTimeState extends AppStates {}
 
 class AppGetOutTimeState extends AppStates {}
+
+class AppRefreshShiftTimeState extends AppStates {}

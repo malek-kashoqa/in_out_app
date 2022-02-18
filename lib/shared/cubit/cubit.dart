@@ -11,19 +11,28 @@ class AppCubit extends Cubit<AppStates> {
   TextEditingController inTime = new TextEditingController();
   TextEditingController outTime = new TextEditingController();
 
-  late DateTime inDateTime;
-  late DateTime outDateTime;
+  DateTime inDateTime = DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0);
+  DateTime outDateTime = DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0);
+  late DateTime inConfirm;
+  late DateTime outConfirm;
+  int shiftDuration = 0;
+  String shiftTimeText = 'Shift time: 00:00 hours';
 
   void setInTime({
     DateTime? datetime,
   }) {
     if (datetime != null) {
       inDateTime = datetime;
+      inConfirm = datetime;
       inTime.text = formatTime(datetime);
     } else {
+      inConfirm = DateTime.now();
       inDateTime = DateTime.now();
       inTime.text = DateFormat('hh:mm a').format(inDateTime);
     }
+    shiftTimeUpdate();
     emit(AppGetInTimeState());
   }
 
@@ -32,11 +41,14 @@ class AppCubit extends Cubit<AppStates> {
   }) {
     if (datetime != null) {
       outDateTime = datetime;
+      outConfirm = datetime;
       outTime.text = formatTime(datetime);
     } else {
       outDateTime = DateTime.now();
+      outConfirm = DateTime.now();
       outTime.text = DateFormat('hh:mm a').format(DateTime.now());
     }
+    shiftTimeUpdate();
     emit(AppGetOutTimeState());
   }
 
@@ -51,7 +63,10 @@ class AppCubit extends Cubit<AppStates> {
     return DateTime(now.year, now.month, now.day, time.hour, time.minute);
   }
 
-  String formatTimeDiff(int minutes) {
-    return '${(Duration(minutes: minutes))}'.split('.')[0].padLeft(8, '0');
+  void shiftTimeUpdate() {
+    shiftDuration = outDateTime.difference(inDateTime).inMinutes;
+    if (shiftDuration > 0)
+      shiftTimeText =
+          'Shift time: ${Duration(minutes: shiftDuration).toString().split('.')[0].padLeft(8, '0').substring(0, 5)} hours';
   }
 }

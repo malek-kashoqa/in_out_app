@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_out_app/layout/confirm_screen.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,13 @@ class HomeScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           child: TextFormField(
                             onTap: () {
-                              timePickerClick(context, cubit);
+                              showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now())
+                                  .then((time) {
+                                cubit.setInTime(
+                                    datetime: cubit.getDateTime(time));
+                              });
                             },
                             keyboardType: TextInputType.none,
                             controller: cubit.inTime,
@@ -78,7 +85,13 @@ class HomeScreen extends StatelessWidget {
                           child: TextFormField(
                             keyboardType: TextInputType.none,
                             onTap: () {
-                              timePickerClick(context, cubit);
+                              showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now())
+                                  .then((time) {
+                                cubit.setOutTime(
+                                    datetime: cubit.getDateTime(time));
+                              });
                             },
                             controller: cubit.outTime,
                             textAlign: TextAlign.center,
@@ -101,7 +114,26 @@ class HomeScreen extends StatelessWidget {
                   flex: 1,
                 ),
                 SizedBox(
-                  height: 50.0,
+                  height: 35.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      cubit.shiftTimeText,
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        cubit.shiftTimeUpdate();
+                        cubit.emit(AppRefreshShiftTimeState());
+                      },
+                      icon: Icon(Icons.refresh),
+                    )
+                  ],
                 ),
                 Expanded(
                   child: Column(
@@ -142,14 +174,16 @@ class HomeScreen extends StatelessWidget {
                         width: double.infinity,
                         child: MaterialButton(
                           onPressed: () {
-                            var min = cubit.outDateTime
-                                .difference(cubit.inDateTime)
-                                .inMinutes;
-                            print(cubit.formatTimeDiff(min));
-                            var test = DateTime(2022, 02, 18, 00, 05)
-                                .difference(DateTime(2022, 02, 15, 15, 15))
-                                .inMinutes;
-                            print(cubit.formatTimeDiff(test));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ConfirmScreen(
+                                          DateFormat('yyyy/MM/dd hh:mm a')
+                                              .format(cubit.inConfirm),
+                                          DateFormat('yyyy/MM/dd hh:mm a')
+                                              .format(cubit.outConfirm),
+                                          cubit.shiftTimeText,
+                                        )));
                           },
                           child: Text(
                             'Confirm',
@@ -171,11 +205,5 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
-  }
-
-  void timePickerClick(BuildContext context, AppCubit cubit) {
-    showTimePicker(context: context, initialTime: TimeOfDay.now()).then((time) {
-      cubit.setInTime(datetime: cubit.getDateTime(time));
-    });
   }
 }
