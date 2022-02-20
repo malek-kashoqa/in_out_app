@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => AppCubit(),
+      create: (BuildContext context) => AppCubit()..createDatabase(),
       child: BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -180,19 +180,19 @@ class HomeScreen extends StatelessWidget {
                               child: MaterialButton(
                                 onPressed: () {
                                   if (cubit.inConfirm != null &&
-                                      cubit.outConfirm != null)
+                                      cubit.outConfirm != null) {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => ConfirmScreen(
-                                                  DateFormat(
-                                                          'yyyy/MM/dd hh:mm a')
-                                                      .format(cubit.inConfirm),
-                                                  DateFormat(
-                                                          'yyyy/MM/dd hh:mm a')
-                                                      .format(cubit.outConfirm),
-                                                  cubit.shiftTimeText,
-                                                )));
+                                                DateFormat('yyyy/MM/dd hh:mm a')
+                                                    .format(cubit.inConfirm),
+                                                DateFormat('yyyy/MM/dd hh:mm a')
+                                                    .format(cubit.outConfirm),
+                                                cubit.shiftTimeText,
+                                                context)));
+                                    cubit.emit(AppConfirmScreenState());
+                                  }
                                 },
                                 child: Text(
                                   'Confirm',
@@ -217,10 +217,11 @@ class HomeScreen extends StatelessWidget {
                 color: Colors.grey,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ArchiveScreen()));
+                    cubit.getDatabaseRecords();
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => ArchiveScreen()));
                   },
                   child: Text(
                     'Archive',

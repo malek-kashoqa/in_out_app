@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:in_out_app/layout/home_screen.dart';
 import 'package:in_out_app/shared/bloc_observer.dart';
+import 'package:in_out_app/shared/cubit/cubit.dart';
 
 void main() {
   BlocOverrides.runZoned(

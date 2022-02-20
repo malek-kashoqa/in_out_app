@@ -7,8 +7,9 @@ class ConfirmScreen extends StatelessWidget {
   String inTime;
   String outTime;
   String shiftTime;
+  BuildContext mycontext;
 
-  ConfirmScreen(this.inTime, this.outTime, this.shiftTime);
+  ConfirmScreen(this.inTime, this.outTime, this.shiftTime, this.mycontext);
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +124,9 @@ class ConfirmScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               MaterialButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  print(AppCubit.get(context).tempInOut);
+                                },
                                 child: Text(
                                   'Yes',
                                   style: TextStyle(

@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
 import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart';
 
 class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(AppInitialState());
   static AppCubit get(context) => BlocProvider.of(context);
+
+  late Database database;
+  List<Map> tempInOut = [];
 
   TextEditingController inTime = new TextEditingController();
   TextEditingController outTime = new TextEditingController();
@@ -68,5 +72,42 @@ class AppCubit extends Cubit<AppStates> {
     if (shiftDuration > 0)
       shiftTimeText =
           'Shift time: ${Duration(minutes: shiftDuration).toString().split('.')[0].padLeft(8, '0').substring(0, 5)} hours';
+  }
+
+  void createDatabase() async {
+    database = await openDatabase(
+      'temp.db',
+      version: 1,
+      onCreate: (database, version) {
+        print("DataBase Created");
+        database
+            .execute(
+                'CREATE TABLE temp (id INTEGER PRIMARY KEY, inConfirmTemp TEXT, outConfirmTemp TEXT)')
+            .then((value) {
+          emit(AppCreateDatabaseState());
+          print("Table created");
+        }).catchError((error) {
+          print("Error when creating the table: ${error.toString()}");
+        });
+      },
+      onOpen: (database) async {
+        print("DataBase Opened");
+        tempInOut = await database.rawQuery('SELECT * FROM temp');
+        print(tempInOut);
+      },
+    );
+  }
+
+  void insertDatabase() async {
+    await database.transaction((txn) async {
+      int id1 = await txn.rawInsert(
+          'INSERT INTO temp(inConfirmTemp, outConfirmTemp) VALUES("Test", "Test")');
+      print('inserted1 $id1');
+    });
+  }
+
+  void getDatabaseRecords() async {
+    tempInOut = await database.rawQuery('SELECT * FROM temp');
+    print(tempInOut);
   }
 }
