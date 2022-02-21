@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_out_app/layout/archive_screen.dart';
 import 'package:in_out_app/layout/confirm_screen.dart';
+import 'package:in_out_app/shared/components/constants.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
 import 'package:intl/intl.dart';
@@ -12,9 +13,14 @@ class HomeScreen extends StatelessWidget {
     return BlocProvider(
       create: (BuildContext context) => AppCubit()..createDatabase(),
       child: BlocConsumer<AppCubit, AppStates>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (inConfirm != null && outConfirm != null)
+            isConfirmButtonVisible = true;
+        },
         builder: (context, state) {
           AppCubit cubit = AppCubit.get(context);
+          if (inConfirm != null && outConfirm != null)
+            isConfirmButtonVisible = true;
           return Column(
             children: [
               Expanded(
@@ -125,7 +131,7 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            cubit.shiftTimeText,
+                            shiftTimeText,
                             style: TextStyle(
                               fontSize: 20.0,
                               fontWeight: FontWeight.w400,
@@ -177,31 +183,35 @@ class HomeScreen extends StatelessWidget {
                             ),
                             Container(
                               width: double.infinity,
-                              child: MaterialButton(
-                                onPressed: () {
-                                  if (cubit.inConfirm != null &&
-                                      cubit.outConfirm != null) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ConfirmScreen(
-                                                DateFormat('yyyy/MM/dd hh:mm a')
-                                                    .format(cubit.inConfirm),
-                                                DateFormat('yyyy/MM/dd hh:mm a')
-                                                    .format(cubit.outConfirm),
-                                                cubit.shiftTimeText,
-                                                context)));
-                                    cubit.emit(AppConfirmScreenState());
-                                  }
-                                },
-                                child: Text(
-                                  'Confirm',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20.0,
+                              child: Visibility(
+                                visible: isConfirmButtonVisible,
+                                child: MaterialButton(
+                                  onPressed: () {
+                                    if (inConfirm != null &&
+                                        outConfirm != null) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => ConfirmScreen(
+                                                  DateFormat(
+                                                          'yyyy/MM/dd hh:mm a')
+                                                      .format(inConfirm),
+                                                  DateFormat(
+                                                          'yyyy/MM/dd hh:mm a')
+                                                      .format(outConfirm),
+                                                  shiftTimeText)));
+                                      cubit.emit(AppConfirmScreenState());
+                                    }
+                                  },
+                                  child: Text(
+                                    'Confirm',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20.0,
+                                    ),
                                   ),
+                                  color: Colors.blue,
                                 ),
-                                color: Colors.blue,
                               ),
                             )
                           ],
@@ -218,10 +228,10 @@ class HomeScreen extends StatelessWidget {
                 child: TextButton(
                   onPressed: () {
                     cubit.getDatabaseRecords();
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => ArchiveScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ArchiveScreen()));
                   },
                   child: Text(
                     'Archive',

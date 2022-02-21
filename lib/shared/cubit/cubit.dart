@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_out_app/shared/components/constants.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
@@ -10,19 +11,12 @@ class AppCubit extends Cubit<AppStates> {
   static AppCubit get(context) => BlocProvider.of(context);
 
   late Database database;
-  List<Map> tempInOut = [];
-
   TextEditingController inTime = new TextEditingController();
   TextEditingController outTime = new TextEditingController();
-
   DateTime inDateTime = DateTime(
       DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0);
   DateTime outDateTime = DateTime(
       DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0);
-  late DateTime inConfirm;
-  late DateTime outConfirm;
-  int shiftDuration = 0;
-  String shiftTimeText = 'Shift time: 00:00 hours';
 
   void setInTime({
     DateTime? datetime,
@@ -36,6 +30,7 @@ class AppCubit extends Cubit<AppStates> {
       inDateTime = DateTime.now();
       inTime.text = DateFormat('hh:mm a').format(inDateTime);
     }
+    updateDatabaseTemp();
     shiftTimeUpdate();
     emit(AppGetInTimeState());
   }
@@ -52,6 +47,7 @@ class AppCubit extends Cubit<AppStates> {
       outConfirm = DateTime.now();
       outTime.text = DateFormat('hh:mm a').format(DateTime.now());
     }
+    updateDatabaseTemp();
     shiftTimeUpdate();
     emit(AppGetOutTimeState());
   }
@@ -93,7 +89,28 @@ class AppCubit extends Cubit<AppStates> {
       onOpen: (database) async {
         print("DataBase Opened");
         tempInOut = await database.rawQuery('SELECT * FROM temp');
+        if (tempInOut.length == 0) {
+          await database.transaction((txn) async {
+            int id1 = await txn.rawInsert(
+                'INSERT INTO temp(inConfirmTemp, outConfirmTemp) VALUES("initialIn", "initialOut")');
+            print('inserted1 $id1');
+          });
+        }
         print(tempInOut);
+        if (tempInOut[0]['inConfirmTemp'] != 'null') {
+          DateTime datetime = DateTime.parse(tempInOut[0]['inConfirmTemp']);
+          inDateTime = datetime;
+          inConfirm = datetime;
+          inTime.text = formatTime(datetime);
+        }
+        if (tempInOut[0]['outConfirmTemp'] != 'null') {
+          DateTime datetime = DateTime.parse(tempInOut[0]['outConfirmTemp']);
+          outDateTime = datetime;
+          outConfirm = datetime;
+          outTime.text = formatTime(datetime);
+        }
+        shiftTimeUpdate();
+        emit(AppOpenDatabaseState());
       },
     );
   }
@@ -109,5 +126,12 @@ class AppCubit extends Cubit<AppStates> {
   void getDatabaseRecords() async {
     tempInOut = await database.rawQuery('SELECT * FROM temp');
     print(tempInOut);
+  }
+
+  void updateDatabaseTemp() async {
+    int count = await database.rawUpdate(
+        'UPDATE temp SET inConfirmTemp = ?, outConfirmTemp = ? WHERE id = ?',
+        ['${inConfirm.toString()}', '${outConfirm.toString()}', 1]);
+    print('updated: $count');
   }
 }

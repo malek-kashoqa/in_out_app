@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_out_app/shared/components/constants.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
 
@@ -7,9 +8,8 @@ class ConfirmScreen extends StatelessWidget {
   String inTime;
   String outTime;
   String shiftTime;
-  BuildContext mycontext;
 
-  ConfirmScreen(this.inTime, this.outTime, this.shiftTime, this.mycontext);
+  ConfirmScreen(this.inTime, this.outTime, this.shiftTime);
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +125,7 @@ class ConfirmScreen extends StatelessWidget {
                             children: [
                               MaterialButton(
                                 onPressed: () {
-                                  print(AppCubit.get(context).tempInOut);
+                                  print(tempInOut);
                                 },
                                 child: Text(
                                   'Yes',
