@@ -11,6 +11,7 @@ class AppCubit extends Cubit<AppStates> {
   static AppCubit get(context) => BlocProvider.of(context);
 
   late Database database;
+  late Database database2;
   TextEditingController inTime = new TextEditingController();
   TextEditingController outTime = new TextEditingController();
   DateTime inDateTime = DateTime(
@@ -87,7 +88,7 @@ class AppCubit extends Cubit<AppStates> {
         });
       },
       onOpen: (database) async {
-        print("DataBase Opened");
+        print("DataBase - temp Opened");
         tempInOut = await database.rawQuery('SELECT * FROM temp');
         if (tempInOut.length == 0) {
           await database.transaction((txn) async {
@@ -113,19 +114,53 @@ class AppCubit extends Cubit<AppStates> {
         emit(AppOpenDatabaseState());
       },
     );
+
+    database2 = await openDatabase(
+      'shifts.db',
+      version: 1,
+      onCreate: (database, version) {
+        print("DataBase Created");
+        database
+            .execute(
+                'CREATE TABLE shifts (id INTEGER PRIMARY KEY, timeIn TEXT, timeOut TEXT, shiftTime TEXT)')
+            .then((value) {
+          emit(AppCreateDatabaseState());
+          print("Table created");
+        }).catchError((error) {
+          print("Error when creating the table: ${error.toString()}");
+        });
+      },
+      onOpen: (database) async {
+        print("DataBase - shifts Opened");
+        shifts = await database.rawQuery('SELECT * FROM shifts');
+        print(shifts);
+        emit(AppOpenDatabaseState());
+      },
+    );
   }
 
-  void insertDatabase() async {
-    await database.transaction((txn) async {
+  void insertDatabaseShift(
+      String inTime, String outTime, String shiftTime) async {
+    await database2.transaction((txn) async {
       int id1 = await txn.rawInsert(
-          'INSERT INTO temp(inConfirmTemp, outConfirmTemp) VALUES("Test", "Test")');
+          'INSERT INTO shifts(timeIn, timeOut, shiftTime) VALUES("$inTime", "$outTime", "$shiftTime")');
       print('inserted1 $id1');
     });
   }
 
   void getDatabaseRecords() async {
+    emit(AppGetDatabaseLoadingState());
     tempInOut = await database.rawQuery('SELECT * FROM temp');
-    print(tempInOut);
+    database2.rawQuery('SELECT * FROM shifts').then((value) {
+      shifts = [];
+      value.forEach((element) {
+        shifts.add(element);
+      });
+    });
+    emit(AppUpdateDatabaseState());
+    // shifts.forEach((element) {
+    //   print(element);
+    // });
   }
 
   void updateDatabaseTemp() async {
@@ -133,5 +168,17 @@ class AppCubit extends Cubit<AppStates> {
         'UPDATE temp SET inConfirmTemp = ?, outConfirmTemp = ? WHERE id = ?',
         ['${inConfirm.toString()}', '${outConfirm.toString()}', 1]);
     print('updated: $count');
+  }
+
+  void deleteDatabase({required int id}) async {
+    database2.rawUpdate(
+      "DELETE FROM shifts WHERE id = ?",
+      [id],
+    ).then((value) {
+      emit(AppDeleteDatabaseState());
+      getDatabaseRecords();
+    }).onError((error, stackTrace) {
+      print('${error.toString()}');
+    });
   }
 }

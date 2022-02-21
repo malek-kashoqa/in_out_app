@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_out_app/shared/components/constants.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ConfirmScreen extends StatelessWidget {
   String inTime;
@@ -14,9 +15,10 @@ class ConfirmScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AppCubit(),
+      create: (context) => AppCubit()..createDatabase(),
       child: BlocConsumer<AppCubit, AppStates>(
           builder: (context, state) {
+            AppCubit cubit = AppCubit.get(context);
             return Scaffold(
               appBar: AppBar(),
               body: Padding(
@@ -125,7 +127,10 @@ class ConfirmScreen extends StatelessWidget {
                             children: [
                               MaterialButton(
                                 onPressed: () {
-                                  print(tempInOut);
+                                  cubit.insertDatabaseShift(
+                                      inConfirm.toString(),
+                                      outConfirm.toString(),
+                                      shiftTime);
                                 },
                                 child: Text(
                                   'Yes',
@@ -137,7 +142,9 @@ class ConfirmScreen extends StatelessWidget {
                                 color: Colors.green,
                               ),
                               MaterialButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
                                 child: Text(
                                   'No',
                                   style: TextStyle(
