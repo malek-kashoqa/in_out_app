@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_out_app/shared/components/components.dart';
 import 'package:in_out_app/shared/components/constants.dart';
 import 'package:in_out_app/shared/cubit/cubit.dart';
 import 'package:in_out_app/shared/cubit/states.dart';
@@ -26,136 +27,42 @@ class ConfirmScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'IN',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 40.0,
-                              ),
-                            ),
-                            flex: 1,
-                          ),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: TextFormField(
-                                keyboardType: TextInputType.none,
-                                controller: TextEditingController(text: inTime),
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                ),
-                              ),
-                            ),
-                            flex: 2,
-                          ),
-                        ],
-                      ),
-                      flex: 1,
+                    TimeWidget(
+                      label: 'IN',
+                      controller: TextEditingController(text: inTime),
+                      textFontSize: 20.0,
                     ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Out',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 40.0,
-                              ),
-                            ),
-                            flex: 1,
-                          ),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: TextFormField(
-                                keyboardType: TextInputType.none,
-                                controller:
-                                    TextEditingController(text: outTime),
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                ),
-                              ),
-                            ),
-                            flex: 2,
-                          ),
-                        ],
-                      ),
-                      flex: 1,
+                    TimeWidget(
+                      label: 'OUT',
+                      controller: TextEditingController(text: outTime),
+                      textFontSize: 20.0,
                     ),
                     SizedBox(
                       height: 35.0,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          shiftTime,
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      shiftTime,
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     Expanded(
-                      child: Column(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              MaterialButton(
-                                onPressed: () {
-                                  cubit.insertDatabaseShift(
-                                      inConfirm.toString(),
-                                      outConfirm.toString(),
-                                      shiftTime);
-                                },
-                                child: Text(
-                                  'Yes',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                color: Colors.green,
-                              ),
-                              MaterialButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'No',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                color: Colors.red,
-                              ),
-                            ],
-                          ),
+                          DefaultButton(
+                              onPressed: () {
+                                cubit.confirmShift();
+                              },
+                              text: 'Yes',
+                              color: Colors.green),
+                          DefaultButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              text: 'No',
+                              color: Colors.red)
                         ],
                       ),
                       flex: 2,

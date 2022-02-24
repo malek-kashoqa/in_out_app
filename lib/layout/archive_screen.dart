@@ -114,17 +114,7 @@ class ArchiveScreen extends StatelessWidget {
                       // );
                     },
                     separatorBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 15.0,
-                          top: 5.0,
-                          bottom: 5.0,
-                        ),
-                        child: Container(
-                          height: 2.0,
-                          color: Colors.grey,
-                        ),
-                      );
+                      return ListSeparator();
                     },
                     itemCount: shifts.length),
               ),
